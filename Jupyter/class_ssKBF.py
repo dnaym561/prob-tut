@@ -6,63 +6,63 @@ class class_ssKBF: # Steady-state Kalman-Bucy filter
 
     def __init__(s, A, D, C, Q, R, x0, cov0=None, CL=None, t0=0.0):
         
-        ### ã‚·ã‚¹ãƒ†ãƒ è¡Œåˆ—
-        s.A = np.array(A) #çŠ¶æ…‹è¡Œåˆ—
-        s.D = np.array(D) #é§†å‹•è¡Œåˆ—
-        s.C = np.array(C) #è¦³æ¸¬è¡Œåˆ—
-        # é›‘éŸ³
-        s.Q = np.array(Q) #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®å…±åˆ†æ•£
-        s.R = np.array(R) #è¦³æ¸¬é›‘éŸ³ã®å…±åˆ†æ•£
+        ### ƒVƒXƒeƒ€s—ñ
+        s.A = np.array(A) #ó‘Ôs—ñ
+        s.D = np.array(D) #‹ì“®s—ñ
+        s.C = np.array(C) #ŠÏ‘ªs—ñ
+        # G‰¹
+        s.Q = np.array(Q) #ƒVƒXƒeƒ€G‰¹‚Ì‹¤•ªU
+        s.R = np.array(R) #ŠÏ‘ªG‰¹‚Ì‹¤•ªU
         
-        ### ã‚·ã‚¹ãƒ†ãƒ ã®ã‚µã‚¤ã‚º
-        s.xdim   = A.shape[1]   #çŠ¶æ…‹ã®æ¬¡å…ƒï¼Aã®åˆ—æ•°
-        s.ydim   = C.shape[0]   #è¦³æ¸¬ã®æ¬¡å…ƒï¼Cã®è¡Œæ•°
-        s.covdim = s.xdim**2 #æœ¬æ¥ã¯ä¸‰è§’æˆåˆ†ã ã‘ã§ã‚ˆã„ãŒæ‰‹æŠœã
+        ### ƒVƒXƒeƒ€‚ÌƒTƒCƒY
+        s.xdim   = A.shape[1]   #ó‘Ô‚ÌŸŒ³A‚Ì—ñ”
+        s.ydim   = C.shape[0]   #ŠÏ‘ª‚ÌŸŒ³C‚Ìs”
+        s.covdim = s.xdim**2 #–{—ˆ‚ÍOŠp¬•ª‚¾‚¯‚Å‚æ‚¢‚ªè”²‚«
 
-        ### LQGåˆ¶å¾¡ç”¨ã®é–‰ãƒ«ãƒ¼ãƒ—è¡Œåˆ—(ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã¯A)
+        ### LQG§Œä—p‚Ì•Âƒ‹[ƒvs—ñ(ƒfƒtƒHƒ‹ƒg‚ÍA)
         if CL is None:
             s.CL = s.A
         else:
             s.CL = CL.copy()
         
-        ### KBFã®åˆæœŸå€¤
+        ### KBF‚Ì‰Šú’l
         s.t    = 0.0
-        s.xf   = np.array(x0) #æ¿¾æ³¢æ¨å®šå€¤
-        s.cov0 = cov0         #å…±åˆ†æ•£è¡Œåˆ—
-        s.K    = None         #ã‚«ãƒ«ãƒãƒ³ã‚²ã‚¤ãƒ³
+        s.xf   = np.array(x0) #àh”g„’è’l
+        s.cov0 = cov0         #‹¤•ªUs—ñ
+        s.K    = None         #ƒJƒ‹ƒ}ƒ“ƒQƒCƒ“
 
-        ### å®šå¸¸ã‚«ãƒ«ãƒãƒ³ãƒ•ã‚£ãƒ«ã‚¿ã®å°å‡º
+        ### ’èíƒJƒ‹ƒ}ƒ“ƒtƒBƒ‹ƒ^‚Ì“±o
         RicA = s.A.T
         RicB = s.C.T
         RicQ = s.D.dot(s.Q).dot(s.D.T)
         RicR = s.R
-        #ãƒªã‚«ãƒƒãƒæ–¹ç¨‹å¼ã®è§£
+        #ƒŠƒJƒbƒ`•û’ö®‚Ì‰ğ
         s.cov = solve_continuous_are(RicA, RicB, RicQ, RicR) 
         X0    = s.xf
-        #å®šå¸¸ã‚«ãƒ«ãƒãƒ³ã‚²ã‚¤ãƒ³
+        #’èíƒJƒ‹ƒ}ƒ“ƒQƒCƒ“
         s.K   = s.cov.dot(s.C.T).dot(np.linalg.pinv(s.R)) 
         print('Steady-state Kalman gain =\n', s.K)
 
-        ### å¸¸å¾®åˆ†æ–¹ç¨‹å¼ã®ã‚½ãƒ«ãƒãƒ¼
+        ### í”÷•ª•û’ö®‚Ìƒ\ƒ‹ƒo[
         s.solver = ode(s.KBF_ode).set_integrator('dopri5')
         s.solver.set_initial_value( X0, t0 )
 
-    ### KBFã‚’æ›´æ–°ã™ã‚‹å¸¸å¾®åˆ†æ–¹ç¨‹å¼(å®šå¸¸ã‚«ãƒ«ãƒãƒ³ãƒ•ã‚£ãƒ«ã‚¿ã®å ´åˆ)
+    ### KBF‚ğXV‚·‚éí”÷•ª•û’ö®(’èíƒJƒ‹ƒ}ƒ“ƒtƒBƒ‹ƒ^‚Ìê‡)
     def KBF_ode(s, t, x, y):
         
         dx = s.CL.dot(x) + s.K.dot(y - s.C.dot(x))
         
         return dx
 
-    ### ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°
+    ### ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO
     def filtering(s, y, dt):
         s.solver.set_f_params( y )
         s.solver.integrate(s.solver.t + dt)
 
-        s.xf = s.solver.y #solver.y ã¯ s.xf
+        s.xf = s.solver.y #solver.y ‚Í s.xf
         s.t = s.solver.t
 
-    ### å®‰å®šåˆ¤åˆ¥
+    ### ˆÀ’è”»•Ê
     def stability(s):
         stability_matrix = s.A - np.dot(s.K, s.C)
         val,vec = np.linalg.eig( stability_matrix )

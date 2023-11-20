@@ -1,34 +1,34 @@
 import numpy as np
 from scipy.linalg import solve_discrete_are
 
-class class_EKF: #æ‹¡å¼µã‚«ãƒ«ãƒãƒ³ãƒ•ã‚£ãƒ«ã‚¿(Extended Kalman filter)
+class class_EKF: #Šg’£ƒJƒ‹ƒ}ƒ“ƒtƒBƒ‹ƒ^(Extended Kalman filter)
     
     def __init__(s, xdim, ydim, G, Q, R, x0, cov0=None):
         
-        s.xdim = xdim #çŠ¶æ…‹ãƒ™ã‚¯ãƒˆãƒ«ã®æ¬¡å…ƒ
-        s.ydim = ydim #å‡ºåŠ›ãƒ™ã‚¯ãƒˆãƒ«ã®æ¬¡å…ƒ
+        s.xdim = xdim #ó‘ÔƒxƒNƒgƒ‹‚ÌŸŒ³
+        s.ydim = ydim #o—ÍƒxƒNƒgƒ‹‚ÌŸŒ³
         
-        ### ã‚·ã‚¹ãƒ†ãƒ è¡Œåˆ—
-        ### çŠ¶æ…‹æ¨ç§»è¡Œåˆ— s.F ã¯æ¨å®šæ™‚ã«ä»£å…¥ã•ã‚Œã‚‹
-        ### è¦³æ¸¬è¡Œåˆ— s.H ã¯æ¨å®šæ™‚ã«ä»£å…¥ã•ã‚Œã‚‹
-        s.G = np.array(G) #é§†å‹•è¡Œåˆ—
-        # é›‘éŸ³
-        s.Q = np.array(Q) #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®å…±åˆ†æ•£è¡Œåˆ—
-        s.R = np.array(R) #è¦³æ¸¬é›‘éŸ³ã®å…±åˆ†æ•£è¡Œåˆ—
+        ### ƒVƒXƒeƒ€s—ñ
+        ### ó‘Ô„ˆÚs—ñ s.F ‚Í„’è‚É‘ã“ü‚³‚ê‚é
+        ### ŠÏ‘ªs—ñ s.H ‚Í„’è‚É‘ã“ü‚³‚ê‚é
+        s.G = np.array(G) #‹ì“®s—ñ
+        # G‰¹
+        s.Q = np.array(Q) #ƒVƒXƒeƒ€G‰¹‚Ì‹¤•ªUs—ñ
+        s.R = np.array(R) #ŠÏ‘ªG‰¹‚Ì‹¤•ªUs—ñ
         
-        ### ãƒ•ã‚£ãƒ«ã‚¿ã®åˆæœŸå€¤
-        s.xf = np.array(x0) #æ¿¾æ³¢æ¨å®šå€¤
-        s.xp = np.array(x0) #äºˆæ¸¬æ¨å®šå€¤
-        s.K  = None         #ã‚«ãƒ«ãƒãƒ³ã‚²ã‚¤ãƒ³
-        #å…±åˆ†æ•£è¡Œåˆ—ã¨ãã®åˆæœŸå€¤
+        ### ƒtƒBƒ‹ƒ^‚Ì‰Šú’l
+        s.xf = np.array(x0) #àh”g„’è’l
+        s.xp = np.array(x0) #—\‘ª„’è’l
+        s.K  = None         #ƒJƒ‹ƒ}ƒ“ƒQƒCƒ“
+        #‹¤•ªUs—ñ‚Æ‚»‚Ì‰Šú’l
         if cov0 is not None:
             s.cov    = np.array(cov0)
         else:
             s.cov    = np.zeros((s.xdim,s.xdim))
             
-    def recursion(s, yt, xp, cov, t): #yt:è¦³æ¸¬é‡, xp=x_t/t-1, cov=S_t/t-1
+    def recursion(s, yt, xp, cov, t): #yt:ŠÏ‘ª—Ê, xp=x_t/t-1, cov=S_t/t-1
         
-        H = s.H_jac(xp,t)                      #æ‹¡å¼µ H_jac
+        H = s.H_jac(xp,t)                      #Šg’£ H_jac
         s.H = H
         
         HSH_R = H.dot(cov).dot(H.T)+s.R
@@ -37,18 +37,18 @@ class class_EKF: #æ‹¡å¼µã‚«ãƒ«ãƒãƒ³ãƒ•ã‚£ãƒ«ã‚¿(Extended Kalman filter)
         else:
             pinv = 1.0/HSH_R
 
-        # ã‚«ãƒ«ãƒãƒ³ã‚²ã‚¤ãƒ³
+        # ƒJƒ‹ƒ}ƒ“ƒQƒCƒ“
         K = cov.dot(H.T).dot(pinv)
         s.K = K
 
-        # æ¿¾æ³¢æ¨å®š: xf ... x_t/t
-        xf = xp + K.dot( yt - s.H_func(xp,t) ) #æ‹¡å¼µ H_func 
+        # àh”g„’è: xf ... x_t/t
+        xf = xp + K.dot( yt - s.H_func(xp,t) ) #Šg’£ H_func 
 
         # Prediction: xp ... x_t+1/t
-        xp = s.F_func(xf,t)                    #æ‹¡å¼µ F_func
+        xp = s.F_func(xf,t)                    #Šg’£ F_func
         
         # Prediction: Sp ... S_t+1/t
-        F = s.F_jac(xf,t)                      #æ‹¡å¼µ F_jac
+        F = s.F_jac(xf,t)                      #Šg’£ F_jac
         s.F = F
         
         cov = F.dot(cov).dot(F.T) + s.G.dot(s.Q).dot(s.G.T) \

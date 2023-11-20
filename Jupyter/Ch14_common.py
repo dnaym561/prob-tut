@@ -1,41 +1,41 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-### ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤
+### ƒfƒtƒHƒ‹ƒg’l
 default_values = ( #Q, R, C, D, x0, dt, tn, p_list
-    np.diag([0.0001,0.0001]), #Q:  ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®å…±åˆ†æ•£
-    np.array([[0.0001]]),     #R:  è¦³æ¸¬é›‘éŸ³ã®å…±åˆ†æ•£
-    np.array([[1, 0]]),       #C:  å¤‰ä½ã®ã¿
-    np.eye(2),                #D:  é§†å‹•è¡Œåˆ—
-    np.array([0.0, 0.0]),     #x0: åˆæœŸå€¤
-    0.02,                     #dt: æ™‚é–“ã‚¹ãƒ†ãƒƒãƒ—
-    2000,                     #tn: æ™‚ç³»åˆ—é•·
+    np.diag([0.0001,0.0001]), #Q:  ƒVƒXƒeƒ€G‰¹‚Ì‹¤•ªU
+    np.array([[0.0001]]),     #R:  ŠÏ‘ªG‰¹‚Ì‹¤•ªU
+    np.array([[1, 0]]),       #C:  •ÏˆÊ‚Ì‚İ
+    np.eye(2),                #D:  ‹ì“®s—ñ
+    np.array([0.0, 0.0]),     #x0: ‰Šú’l
+    0.02,                     #dt: ŠÔƒXƒeƒbƒv
+    2000,                     #tn: Œn—ñ’·
     [1, 0.2, 1],              #p_list: k, c, a
 )
 
-### å¤–éƒ¨åŠ±æŒ¯
+### ŠO•”—ãU
 def Forcing(t):
     return np.sin(1.5*t)
 
-### æ‹¡å¤§ç³»ã®å°å‡º
+### Šg‘åŒn‚Ì“±o
 def get_extended_system(x0, Q, D, C, A=None, Qval=1.2):
         
     ex0 = np.append(x0, [0.0])
-    # æ‹¡å¤§ç³»
+    # Šg‘åŒn
     if A is not None:
-        eA = np.pad(A, (0,1), 'constant') #Aã‚’1è¡Œ1åˆ—æ‹¡å¤§ã—ã¦0ã§åŸ‹ã‚ã‚‹
-        eA[-2,-1] = 1 #å¿…è¦ç®‡æ‰€ã«1ã‚’ä»£å…¥ã™ã‚‹
+        eA = np.pad(A, (0,1), 'constant') #A‚ğ1s1—ñŠg‘å‚µ‚Ä0‚Å–„‚ß‚é
+        eA[-2,-1] = 1 #•K—v‰ÓŠ‚É1‚ğ‘ã“ü‚·‚é
     else:
         eA = None
-    # æ¨å®šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã«ã‚‚ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã‚’ä»®å®šï¼ˆç„¡ã„ã¨æ¨å®šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãŒå‹•ã‹ãªããªã‚‹ï¼‰
+    # „’èƒpƒ‰ƒ[ƒ^‚É‚àƒVƒXƒeƒ€G‰¹‚ğ‰¼’èi–³‚¢‚Æ„’èƒpƒ‰ƒ[ƒ^‚ª“®‚©‚È‚­‚È‚éj
     eD = np.pad(D, (0,1), 'constant')
     eD[-1,-1] = 1
-    # æ¨å®šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã¯è¦³æ¸¬ã§ããªã„ã¨ã™ã‚‹
+    # „’èƒpƒ‰ƒ[ƒ^‚ÍŠÏ‘ª‚Å‚«‚È‚¢‚Æ‚·‚é
     eC = np.pad(C, (0,1), 'constant')
     eC = np.delete(eC, axis=0, obj=-1)
-    # æ¨å®šãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ç”¨ã®ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³å¼·åº¦ã‚’è¿½åŠ 
+    # „’èƒpƒ‰ƒ[ƒ^—p‚ÌƒVƒXƒeƒ€G‰¹‹­“x‚ğ’Ç‰Á
     eQ = np.pad(Q, (0,1), 'constant')
-    eQ[-1,-1] = Qval    #ã‚ã¾ã‚Šå°ã•ã„ã¨åæŸãŒé…ã„ãŒï¼Œå¤§ãã™ãã¦ã‚‚åŠ¹æœãªã—ï¼
+    eQ[-1,-1] = Qval    #‚ ‚Ü‚è¬‚³‚¢‚Æû‘©‚ª’x‚¢‚ªC‘å‚«‚·‚¬‚Ä‚àŒø‰Ê‚È‚µD
 
     print('Extended x0 =\n',ex0)
     print('Extended A =\n',eA)
@@ -49,10 +49,10 @@ def get_extended_system(x0, Q, D, C, A=None, Qval=1.2):
         return (ex0, eQ, eD, eC)
 
 
-### ã‚µãƒ³ãƒ—ãƒ«ãƒ‡ãƒ¼ã‚¿ã®å–å¾—
-from class_SDE import * #å®Ÿè¡Œãƒ•ã‚©ãƒ«ãƒ€ã«class_SDE.pyã‚’ç½®ã„ã¦ã‚¤ãƒ³ãƒãƒ¼ãƒˆã—ã¾ã™ï¼
+### ƒTƒ“ƒvƒ‹ƒf[ƒ^‚Ìæ“¾
+from class_SDE import * #ÀsƒtƒHƒ‹ƒ_‚Éclass_SDE.py‚ğ’u‚¢‚ÄƒCƒ“ƒ|[ƒg‚µ‚Ü‚·D
 
-class model_1dof_tv(class_SDE): #class_SDEã®å­ã‚¯ãƒ©ã‚¹, 1è‡ªç”±åº¦æŒ¯å‹•ç³»ï¼Œæ™‚å¤‰ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+class model_1dof_tv(class_SDE): #class_SDE‚ÌqƒNƒ‰ƒX, 1©—R“xU“®ŒnC•Ïƒpƒ‰ƒ[ƒ^
 
     def __init__(s, p_idx, p1, p2, t1=None):
         
@@ -62,14 +62,14 @@ class model_1dof_tv(class_SDE): #class_SDEã®å­ã‚¯ãƒ©ã‚¹, 1è‡ªç”±åº¦æŒ¯å‹•ç³»ï¼
         s.tn = tn
         s.p_list = p_list.copy()
         
-        xdim = 2               #çŠ¶æ…‹ã®æ¬¡å…ƒ
-        ydim = s.C.shape[0] #è¦³æ¸¬ã®æ¬¡å…ƒï¼Cã®è¡Œæ•°
+        xdim = 2               #ó‘Ô‚ÌŸŒ³
+        ydim = s.C.shape[0] #ŠÏ‘ª‚ÌŸŒ³C‚Ìs”
         t0 = 0.0
         
         super().__init__(xdim, ydim, Q, R)
         s.setup(x0, dt, t0)
 
-        # æ™‚åˆ»t1ã§å¤‰åŒ–ã™ã‚‹ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+        # t1‚Å•Ï‰»‚·‚éƒpƒ‰ƒ[ƒ^
         s.p_idx  = p_idx   
         s.p1 = p1
         s.p2 = p2
@@ -78,7 +78,7 @@ class model_1dof_tv(class_SDE): #class_SDEã®å­ã‚¯ãƒ©ã‚¹, 1è‡ªç”±åº¦æŒ¯å‹•ç³»ï¼
         else:
             s.t1 = t1
         
-    ### çŠ¶æ…‹æ–¹ç¨‹å¼ã®å®šç¾©(å¿…é ˆ)
+    ### ó‘Ô•û’ö®‚Ì’è‹`(•K{)
     def StateEqn(s, t, x):
         
         if t<s.t1:
@@ -94,11 +94,11 @@ class model_1dof_tv(class_SDE): #class_SDEã®å­ã‚¯ãƒ©ã‚¹, 1è‡ªç”±åº¦æŒ¯å‹•ç³»ï¼
         
         return s.dx
     
-    ### è¦³æ¸¬æ–¹ç¨‹å¼ã®å®šç¾©(å¿…é ˆ)
+    ### ŠÏ‘ª•û’ö®‚Ì’è‹`(•K{)
     def OutputEqn(s, x):
         return s.C.dot(x)
     
-    ### ã‚µãƒ³ãƒ—ãƒ«ãƒ‡ãƒ¼ã‚¿ã®å–å¾—
+    ### ƒTƒ“ƒvƒ‹ƒf[ƒ^‚Ìæ“¾
     def get_sample_path(s): 
         s.tt, s.xx, s.yy = super().get_sample_path(s.tn)
         s.param = np.zeros_like(s.tt)
@@ -108,7 +108,7 @@ class model_1dof_tv(class_SDE): #class_SDEã®å­ã‚¯ãƒ©ã‚¹, 1è‡ªç”±åº¦æŒ¯å‹•ç³»ï¼
             else:
                 s.param[i] = s.p2
 
-### ãƒ—ãƒ­ãƒƒãƒˆ
+### ƒvƒƒbƒg
 def plot(cls, param_label='Parameter'):
 
     fig, ax = plt.subplots(3, 1, figsize=(4,4))

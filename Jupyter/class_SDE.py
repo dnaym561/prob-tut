@@ -7,77 +7,77 @@ class class_SDE:
 
     def __init__(self, xdim, ydim, Q, R):
 
-        ### ã‚·ã‚¹ãƒ†ãƒ ã®ã‚µã‚¤ã‚º
-        self.xdim = xdim #çŠ¶æ…‹ã®æ¬¡å…ƒ
-        self.ydim = ydim #è¦³æ¸¬ã®æ¬¡å…ƒ
+        ### ƒVƒXƒeƒ€‚ÌƒTƒCƒY
+        self.xdim = xdim #ó‘Ô‚ÌŸŒ³
+        self.ydim = ydim #ŠÏ‘ª‚ÌŸŒ³
 
-        ### é›‘éŸ³
-        self.Q    = np.array(Q)         #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®å…±åˆ†æ•£
-        self.wdim = self.Q.shape[0]     #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®æ¬¡å…ƒ
-        self.w    = np.zeros(self.wdim) #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ãƒ™ã‚¯ãƒˆãƒ«
-        self.wav  = np.zeros(self.wdim) #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®å¹³å‡
-        self.R    = np.array(R)         #è¦³æ¸¬é›‘éŸ³ã®å…±åˆ†æ•£
-        self.vdim = self.R.shape[0]     #è¦³æ¸¬é›‘éŸ³ã®æ¬¡å…ƒ
-        self.v    = np.zeros(self.vdim) #è¦³æ¸¬é›‘éŸ³ãƒ™ã‚¯ãƒˆãƒ«
-        self.vav  = np.zeros(self.vdim) #è¦³æ¸¬é›‘éŸ³ã®å¹³å‡
+        ### G‰¹
+        self.Q    = np.array(Q)         #ƒVƒXƒeƒ€G‰¹‚Ì‹¤•ªU
+        self.wdim = self.Q.shape[0]     #ƒVƒXƒeƒ€G‰¹‚ÌŸŒ³
+        self.w    = np.zeros(self.wdim) #ƒVƒXƒeƒ€G‰¹ƒxƒNƒgƒ‹
+        self.wav  = np.zeros(self.wdim) #ƒVƒXƒeƒ€G‰¹‚Ì•½‹Ï
+        self.R    = np.array(R)         #ŠÏ‘ªG‰¹‚Ì‹¤•ªU
+        self.vdim = self.R.shape[0]     #ŠÏ‘ªG‰¹‚ÌŸŒ³
+        self.v    = np.zeros(self.vdim) #ŠÏ‘ªG‰¹ƒxƒNƒgƒ‹
+        self.vav  = np.zeros(self.vdim) #ŠÏ‘ªG‰¹‚Ì•½‹Ï
 
     def setup(s, x0, dt, t0=0.0, solver_type='dopri5'):
-        s.x0 = np.array(x0) #åˆæœŸçŠ¶æ…‹ãƒ™ã‚¯ãƒˆãƒ«
-        s.dx = np.zeros_like(s.x0) #çŠ¶æ…‹ãƒ™ã‚¯ãƒˆãƒ«ã®æ™‚é–“å¾®åˆ†
-        s.dt = dt           #ç©åˆ†ã‚¹ãƒ†ãƒƒãƒ— 
-        s.t0 = t0           #åˆæœŸæ™‚åˆ»
-        ### ã‚½ãƒ«ãƒã®è¨­å®š
+        s.x0 = np.array(x0) #‰Šúó‘ÔƒxƒNƒgƒ‹
+        s.dx = np.zeros_like(s.x0) #ó‘ÔƒxƒNƒgƒ‹‚ÌŠÔ”÷•ª
+        s.dt = dt           #Ï•ªƒXƒeƒbƒv 
+        s.t0 = t0           #‰Šú
+        ### ƒ\ƒ‹ƒo‚Ìİ’è
         s.solver = ode(s.StateEqn).set_integrator(solver_type)
         s.solver.set_initial_value( s.x0, s.t0 )
-        ### ã‚¯ãƒ©ã‚¹å¤‰æ•°ã‚’ã‚½ãƒ«ãƒã¨åŒæœŸ
-        s.t = s.solver.t #ã‚¯ãƒ©ã‚¹å¤‰æ•°(t,x)ã¯solverå†…ã®(x,y)ã«å¯¾å¿œ
-        s.x = s.solver.y     #çŠ¶æ…‹ãƒ™ã‚¯ãƒˆãƒ«ã®åˆæœŸå€¤
-        s.y = s.get_output() #è¦³æ¸¬ãƒ™ã‚¯ãƒˆãƒ«ã®åˆæœŸå€¤
+        ### ƒNƒ‰ƒX•Ï”‚ğƒ\ƒ‹ƒo‚Æ“¯Šú
+        s.t = s.solver.t #ƒNƒ‰ƒX•Ï”(t,x)‚Ísolver“à‚Ì(x,y)‚É‘Î‰
+        s.x = s.solver.y     #ó‘ÔƒxƒNƒgƒ‹‚Ì‰Šú’l
+        s.y = s.get_output() #ŠÏ‘ªƒxƒNƒgƒ‹‚Ì‰Šú’l
 
     def StateEqn(s, t, x): 
         # dx/dt = StateEqn(t, x)
-        # é–¢æ•°å†…ã§ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ s.w, ä¸€æ™‚ä¿æŒç”¨ã® s.dx ãŒä½¿ãˆã‚‹ï¼
+        # ŠÖ”“à‚ÅƒVƒXƒeƒ€G‰¹ s.w, ˆê•Û—p‚Ì s.dx ‚ªg‚¦‚éD
         ### dummy ###
         s.dx = x
         return s.dx
 
     def OutputEqn(s, x): #dx/dt = StateEqn(t, x)
         # y = output_func(x) + v
-        # è¦³æ¸¬é›‘éŸ³ v ã¯get_output()ã§è‡ªå‹•çš„ã«åŠ ç®—ã•ã‚Œã‚‹ 
+        # ŠÏ‘ªG‰¹ v ‚Íget_output()‚Å©“®“I‚É‰ÁZ‚³‚ê‚é 
         ### dummy ###
         y = x
         return y
 
     def get_output(s): 
-        ### é›‘éŸ³ã®æ›´æ–°
+        ### G‰¹‚ÌXV
         s.update_v()
         return s.OutputEqn(s.x) + s.v
 
     def update_w(s):
         if s.wdim == 1:
-            s.w = np.sqrt(s.Q[0]) * np.random.randn() #æ­£è¦ä¹±æ•°
+            s.w = np.sqrt(s.Q[0]) * np.random.randn() #³‹K—”
         else:
             s.w = np.random.multivariate_normal(s.wav, s.Q)
         
     def update_v(s):
         if s.vdim == 1:
-            s.v = np.sqrt(s.R[0]) * np.random.randn() #æ­£è¦ä¹±æ•°
+            s.v = np.sqrt(s.R[0]) * np.random.randn() #³‹K—”
         else:
             s.v = np.random.multivariate_normal(s.vav, s.R)
 
     def propagator(s, x0, t0):    
-        ### é›‘éŸ³ã®æ›´æ–°
+        ### G‰¹‚ÌXV
         s.update_w()
 
-        # ç®—æ³•12.1ã«ã‚ã‚‹Dã®è£œæ­£ã¨åŒã˜ã“ã¨ã‚’ï¼Œwã®è£œæ­£ã§ã—ã¦ã„ã‚‹ï¼
-        # ç ‚åŸã€Œç¢ºç‡ã‚·ã‚¹ãƒ†ãƒ ç†è«–ã€ISBN:4-88552-028-2, 89é ãªã©
+        # Z–@12.1‚É‚ ‚éD‚Ì•â³‚Æ“¯‚¶‚±‚Æ‚ğCw‚Ì•â³‚Å‚µ‚Ä‚¢‚éD
+        # »Œ´uŠm—¦ƒVƒXƒeƒ€—˜_vISBN:4-88552-028-2, 89•Å‚È‚Ç
         inv_sqrt_dt = 1.0/np.sqrt(s.dt)
         s.w *= inv_sqrt_dt
 
         s.solver.set_initial_value( x0, t0 )
         s.solver.integrate(s.solver.t + s.dt)
 
-        return (s.solver.y, s.solver.t) #æœ¬ã‚¯ãƒ©ã‚¹ã®(t,x)ã¯solverã®(t,y)
+        return (s.solver.y, s.solver.t) #–{ƒNƒ‰ƒX‚Ì(t,x)‚Ísolver‚Ì(t,y)
         
     def solve(s):
         s.x, s.t = s.propagator(s.x, s.t)
@@ -86,9 +86,9 @@ class class_SDE:
         s.u = u
 
     def get_sample_path(s, tn):
-        tt = np.zeros(tn+1)   #æ™‚åˆ»ã®åˆ—
-        xx = np.zeros((tn+1, s.xdim)) #çŠ¶æ…‹ãƒ™ã‚¯ãƒˆãƒ«ã®æ™‚ç³»åˆ—
-        yy = np.zeros((tn+1, s.ydim)) #è¦³æ¸¬ãƒ™ã‚¯ãƒˆãƒ«ã®æ™‚ç³»åˆ—
+        tt = np.zeros(tn+1)   #‚Ì—ñ
+        xx = np.zeros((tn+1, s.xdim)) #ó‘ÔƒxƒNƒgƒ‹‚ÌŒn—ñ
+        yy = np.zeros((tn+1, s.ydim)) #ŠÏ‘ªƒxƒNƒgƒ‹‚ÌŒn—ñ
 
         for i in range(tn+1):
             tt[i] = s.t

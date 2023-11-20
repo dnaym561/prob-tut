@@ -5,31 +5,31 @@ class class_ssKF: # Steady-state Kalman filter
     
     def __init__(s, F, G, H, Q, R, x0, cov0=None):
         
-        ### ã‚·ã‚¹ãƒ†ãƒ è¡Œåˆ—
-        s.F = np.array(F) #çŠ¶æ…‹æŽ¨ç§»è¡Œåˆ—
-        s.G = np.array(G) #é§†å‹•è¡Œåˆ—
-        s.H = np.array(H) #è¦³æ¸¬è¡Œåˆ—
-        # é›‘éŸ³
-        s.Q = np.array(Q) #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®å…±åˆ†æ•£è¡Œåˆ—
-        s.R = np.array(R) #è¦³æ¸¬é›‘éŸ³ã®å…±åˆ†æ•£è¡Œåˆ—
+        ### ƒVƒXƒeƒ€s—ñ
+        s.F = np.array(F) #ó‘Ô„ˆÚs—ñ
+        s.G = np.array(G) #‹ì“®s—ñ
+        s.H = np.array(H) #ŠÏ‘ªs—ñ
+        # ŽG‰¹
+        s.Q = np.array(Q) #ƒVƒXƒeƒ€ŽG‰¹‚Ì‹¤•ªŽUs—ñ
+        s.R = np.array(R) #ŠÏ‘ªŽG‰¹‚Ì‹¤•ªŽUs—ñ
         
-        s.xdim = F.shape[1] #çŠ¶æ…‹ãƒ™ã‚¯ãƒˆãƒ«ã®æ¬¡å…ƒï¼çŠ¶æ…‹æŽ¨ç§»è¡Œåˆ—ã®åˆ—æ•°
-        s.ydim = H.shape[0] #è¦³æ¸¬è¡Œåˆ—ã®è¡Œæ•°
+        s.xdim = F.shape[1] #ó‘ÔƒxƒNƒgƒ‹‚ÌŽŸŒ³ó‘Ô„ˆÚs—ñ‚Ì—ñ”
+        s.ydim = H.shape[0] #ŠÏ‘ªs—ñ‚Ìs”
         
-        ### KBFã®å†…éƒ¨çŠ¶æ…‹
-        s.xf   = np.array(x0) #æ¿¾æ³¢æŽ¨å®šå€¤
-        s.xp   = np.array(x0) #äºˆæ¸¬æŽ¨å®šå€¤
-        s.cov0 = cov0         #å…±åˆ†æ•£è¡Œåˆ—
-        s.K    = None         #ã‚«ãƒ«ãƒžãƒ³ã‚²ã‚¤ãƒ³
+        ### KBF‚Ì“à•”ó‘Ô
+        s.xf   = np.array(x0) #àh”g„’è’l
+        s.xp   = np.array(x0) #—\‘ª„’è’l
+        s.cov0 = cov0         #‹¤•ªŽUs—ñ
+        s.K    = None         #ƒJƒ‹ƒ}ƒ“ƒQƒCƒ“
 
-        ### å®šå¸¸ã‚«ãƒ«ãƒžãƒ³ãƒ•ã‚£ãƒ«ã‚¿ã®å°Žå‡º
+        ### ’èíƒJƒ‹ƒ}ƒ“ƒtƒBƒ‹ƒ^‚Ì“±o
         RicA = s.F.T
         RicB = s.H.T
         RicQ = s.G.dot(s.Q).dot(s.G.T)
         RicR = s.R
-        #ãƒªã‚«ãƒƒãƒæ–¹ç¨‹å¼ã®è§£
+        #ƒŠƒJƒbƒ`•û’öŽ®‚Ì‰ð
         s.cov = solve_discrete_are(RicA, RicB, RicQ, RicR) 
-        #å®šå¸¸ã‚«ãƒ«ãƒžãƒ³ã‚²ã‚¤ãƒ³
+        #’èíƒJƒ‹ƒ}ƒ“ƒQƒCƒ“
         HSH_R = s.H.dot(s.cov).dot(s.H.T)+s.R
         if HSH_R.ndim > 1:
             pinv = np.linalg.pinv(HSH_R)
@@ -48,12 +48,12 @@ class class_ssKF: # Steady-state Kalman filter
 
         return (xf, xp)
     
-    ### ãƒ•ã‚£ãƒ«ã‚¿ãƒªãƒ³ã‚°
+    ### ƒtƒBƒ‹ƒ^ƒŠƒ“ƒO
     def filtering(s, y):
 
         s.xf, s.xp = s.recursion(y, s.xp)
 
-    ### å®‰å®šåˆ¤åˆ¥
+    ### ˆÀ’è”»•Ê
     def stability(s):
 
         stability_matrix = s.F - np.dot(s.K, s.H)

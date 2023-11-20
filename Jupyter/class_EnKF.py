@@ -1,99 +1,99 @@
 import numpy as np
 from scipy.integrate import ode
 
-class class_EnKF: #ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«ã‚«ãƒ«ãƒãƒ³ãƒ•ã‚£ãƒ«ã‚¿(Ensemble Kalman filter)
+class class_EnKF: #ƒAƒ“ƒTƒ“ƒuƒ‹ƒJƒ‹ƒ}ƒ“ƒtƒBƒ‹ƒ^(Ensemble Kalman filter)
 
     def __init__(self, xdim, ydim, Q, R, pn):
 
-        ### ã‚·ã‚¹ãƒ†ãƒ ã®ã‚µã‚¤ã‚º
-        self.xdim = xdim #çŠ¶æ…‹ã®æ¬¡å…ƒ
-        self.ydim = ydim #è¦³æ¸¬ã®æ¬¡å…ƒ
-        self.pn   = pn   #ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«ã®ç²’å­æ•°
+        ### ƒVƒXƒeƒ€‚ÌƒTƒCƒY
+        self.xdim = xdim #ó‘Ô‚ÌŸŒ³
+        self.ydim = ydim #ŠÏ‘ª‚ÌŸŒ³
+        self.pn   = pn   #ƒAƒ“ƒTƒ“ƒuƒ‹‚Ì—±q”
 
-        ### é›‘éŸ³
-        self.Q    = np.array(Q)         #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®å…±åˆ†æ•£
-        self.wdim = self.Q.shape[0]     #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®æ¬¡å…ƒ
-        self.w    = np.zeros(self.wdim) #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ãƒ™ã‚¯ãƒˆãƒ«
-        self.wav  = np.zeros(self.wdim) #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®å¹³å‡ = 0
+        ### G‰¹
+        self.Q    = np.array(Q)         #ƒVƒXƒeƒ€G‰¹‚Ì‹¤•ªU
+        self.wdim = self.Q.shape[0]     #ƒVƒXƒeƒ€G‰¹‚ÌŸŒ³
+        self.w    = np.zeros(self.wdim) #ƒVƒXƒeƒ€G‰¹ƒxƒNƒgƒ‹
+        self.wav  = np.zeros(self.wdim) #ƒVƒXƒeƒ€G‰¹‚Ì•½‹Ï = 0
 
-        self.R    = np.array(R)         #è¦³æ¸¬é›‘éŸ³ã®å…±åˆ†æ•£
-        self.vdim = self.R.shape[0]     #è¦³æ¸¬é›‘éŸ³ã®æ¬¡å…ƒ
-        self.v    = np.zeros(self.vdim) #è¦³æ¸¬é›‘éŸ³ãƒ™ã‚¯ãƒˆãƒ«
-        self.vav  = np.zeros(self.vdim) #è¦³æ¸¬é›‘éŸ³ã®å¹³å‡ = 0
+        self.R    = np.array(R)         #ŠÏ‘ªG‰¹‚Ì‹¤•ªU
+        self.vdim = self.R.shape[0]     #ŠÏ‘ªG‰¹‚ÌŸŒ³
+        self.v    = np.zeros(self.vdim) #ŠÏ‘ªG‰¹ƒxƒNƒgƒ‹
+        self.vav  = np.zeros(self.vdim) #ŠÏ‘ªG‰¹‚Ì•½‹Ï = 0
         
-        ### ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«è¡Œåˆ—
-        self.Xp = np.zeros((self.xdim, self.pn))  #äºˆæ¸¬æ¨å®šã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«
-        self.Xf = np.zeros_like(self.Xp)          #æ¿¾æ³¢ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«
-        self.Yp = np.zeros((self.ydim, self.pn))  #äºˆæ¸¬å‡ºåŠ›ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«
+        ### ƒAƒ“ƒTƒ“ƒuƒ‹s—ñ
+        self.Xp = np.zeros((self.xdim, self.pn))  #—\‘ª„’èƒAƒ“ƒTƒ“ƒuƒ‹
+        self.Xf = np.zeros_like(self.Xp)          #àh”gƒAƒ“ƒTƒ“ƒuƒ‹
+        self.Yp = np.zeros((self.ydim, self.pn))  #—\‘ªo—ÍƒAƒ“ƒTƒ“ƒuƒ‹
         self.ones = np.ones((self.pn,1))
         
         self.bias = self.pn - 1
         self.yones = np.ones((self.ydim, self.pn))
     
-    ### å°ã‚¯ãƒ©ã‚¹ç”¨ã®åˆæœŸåŒ–é–¢æ•°
+    ### ¬ƒNƒ‰ƒX—p‚Ì‰Šú‰»ŠÖ”
     def system_definition(s, F_func, H_func, x0, P0, t0=0):
 
         s.F_func = F_func
         s.H_func = H_func
         
-        s.init_ensemble(x0, P0) #ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«ã®åˆæœŸåŒ–
-        s.xf = np.mean(s.Xp, axis=1) #æ¿¾æ³¢æ¨å®šå€¤ã®æš«å®šåˆæœŸå€¤
+        s.init_ensemble(x0, P0) #ƒAƒ“ƒTƒ“ƒuƒ‹‚Ì‰Šú‰»
+        s.xf = np.mean(s.Xp, axis=1) #àh”g„’è’l‚Ìb’è‰Šú’l
 
-    def state_eqn(s, x): #çŠ¶æ…‹æ–¹ç¨‹å¼ã®å³è¾º
+    def state_eqn(s, x): #ó‘Ô•û’ö®‚Ì‰E•Ó
         s.update_w()
-        return s.F_func(x, s.t) #s.t ã¯ filtering(yt,t) ã§æ›´æ–°ã•ã‚ŒãŸå€¤
+        return s.F_func(x, s.t) #s.t ‚Í filtering(yt,t) ‚ÅXV‚³‚ê‚½’l
         
-    def output_eqn(s, x): #è¦³æ¸¬æ–¹ç¨‹å¼ã®å³è¾º
+    def output_eqn(s, x): #ŠÏ‘ª•û’ö®‚Ì‰E•Ó
         s.update_v()
         return s.H_func(x) + s.v
         
-    def update_w(s): #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®æ›´æ–°
+    def update_w(s): #ƒVƒXƒeƒ€G‰¹‚ÌXV
         if s.wdim == 1:
-            s.w = np.sqrt(s.Q[0]) * np.random.randn() #æ­£è¦ä¹±æ•°
+            s.w = np.sqrt(s.Q[0]) * np.random.randn() #³‹K—”
         else:
             s.w = np.random.multivariate_normal(s.wav, s.Q)
 
-    def update_v(s): #è¦³æ¸¬é›‘éŸ³
+    def update_v(s): #ŠÏ‘ªG‰¹
         if s.vdim == 1:
-            s.v = np.sqrt(s.R[0])*(np.random.randn()) #æ­£è¦ä¹±æ•°
+            s.v = np.sqrt(s.R[0])*(np.random.randn()) #³‹K—”
         else:
             s.v = np.random.multivariate_normal(s.vav, s.R)
         
-    ### ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«ã®åˆæœŸåŒ–ã¨æ›´æ–°
+    ### ƒAƒ“ƒTƒ“ƒuƒ‹‚Ì‰Šú‰»‚ÆXV
     def init_ensemble(s, x0, P0):
-        s.Xp = np.random.multivariate_normal(x0, P0, s.pn).T #(xdim)x(pn)ã‚¬ã‚¦ã‚¹è¡Œåˆ—  
+        s.Xp = np.random.multivariate_normal(x0, P0, s.pn).T #(xdim)x(pn)ƒKƒEƒXs—ñ  
         
-    def update_Yp(s): #äºˆæ¸¬å‡ºåŠ›ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«ã®æ›´æ–°
+    def update_Yp(s): #—\‘ªo—ÍƒAƒ“ƒTƒ“ƒuƒ‹‚ÌXV
         s.Yp = np.apply_along_axis(s.output_eqn, 0, s.Xp)
         
-    def update_Xp(s): #äºˆæ¸¬æ¨å®šã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«ã®æ›´æ–°
+    def update_Xp(s): #—\‘ª„’èƒAƒ“ƒTƒ“ƒuƒ‹‚ÌXV
         s.Xp = np.apply_along_axis(s.state_eqn, 0, s.Xp)
         
-    ### æ¿¾æ³¢æ¨å®š
+    ### àh”g„’è
     def filtering(s, yt, t, skip_prediction = False):
         
-        ### ãƒ•ã‚£ãƒ«ã‚¿å†…ã®æ™‚åˆ»ã®æ›´æ–°
+        ### ƒtƒBƒ‹ƒ^“à‚Ì‚ÌXV
         s.t = t
         
-        ### äºˆæ¸¬å‡ºåŠ›ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«ã®è¨ˆç®—
+        ### —\‘ªo—ÍƒAƒ“ƒTƒ“ƒuƒ‹‚ÌŒvZ
         s.update_Yp()
 
-        ### ã‚«ãƒ«ãƒãƒ³ã‚²ã‚¤ãƒ³ã®è¨ˆç®—
+        ### ƒJƒ‹ƒ}ƒ“ƒQƒCƒ“‚ÌŒvZ
         s.meanXp = np.mean(s.Xp, axis=1).reshape(-1,1)
         s.meanYp = np.mean(s.Yp, axis=1).reshape(-1,1)
         s.covXY = s.bias*( np.dot(s.Xp, s.Yp.T)/s.pn - np.dot(s.meanXp, s.meanYp.T) )
         s.covYY = s.bias*( np.dot(s.Yp, s.Yp.T)/s.pn - np.dot(s.meanYp, s.meanYp.T) )
         s.K = np.dot(s.covXY, np.linalg.pinv(s.covYY))
 
-        ### æ¿¾æ³¢ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«ã¨æ¿¾æ³¢æ¨å®šå€¤ã®è¨ˆç®—
+        ### àh”gƒAƒ“ƒTƒ“ƒuƒ‹‚Æàh”g„’è’l‚ÌŒvZ
         yt_matrix = np.dot(np.diag(yt), s.yones)
-        s.Xf = s.Xp + np.dot(s.K, (yt_matrix - s.Yp)) #æ¿¾æ³¢ã‚¢ãƒ³ã‚µãƒ³ãƒ–ãƒ«
-        s.xf = np.mean(s.Xf, axis=1) #æ¿¾æ³¢æ¨å®šå€¤
+        s.Xf = s.Xp + np.dot(s.K, (yt_matrix - s.Yp)) #àh”gƒAƒ“ƒTƒ“ƒuƒ‹
+        s.xf = np.mean(s.Xf, axis=1) #àh”g„’è’l
     
         if skip_prediction is not True:
-            s.prediction() #äºˆæ¸¬æ¨å®š
+            s.prediction() #—\‘ª„’è
 
-    ### äºˆæ¸¬æ¨å®š
+    ### —\‘ª„’è
     def prediction(s):
-        s.Xp = s.Xf #æ¿¾æ³¢æ¨å®šå€¤ã‚’äºˆæ¸¬ã®åˆæœŸå€¤ã«
+        s.Xp = s.Xf #àh”g„’è’l‚ğ—\‘ª‚Ì‰Šú’l‚É
         s.update_Xp()

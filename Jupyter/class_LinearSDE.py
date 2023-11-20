@@ -1,43 +1,43 @@
 import numpy as np
 from scipy.integrate import ode
-from class_SDE import * #å®Ÿè¡Œãƒ•ã‚©ãƒ«ãƒ€ã«SDE.pyã‚’ç½®ã„ã¦ã‚¤ãƒ³ãƒãƒ¼ãƒˆã—ã¾ã™ï¼
+from class_SDE import * #ÀsƒtƒHƒ‹ƒ_‚ÉSDE.py‚ğ’u‚¢‚ÄƒCƒ“ƒ|[ƒg‚µ‚Ü‚·D
 
-class class_LinearSDE(class_SDE): #SDEã®å­ã‚¯ãƒ©ã‚¹
+class class_LinearSDE(class_SDE): #SDE‚ÌqƒNƒ‰ƒX
 
     def __init__(self, A, D, C, Q, R, x0, dt, t0=0.0, B=None):
 
-        ### ã‚·ã‚¹ãƒ†ãƒ è¡Œåˆ—
-        self.A = np.array(A) #çŠ¶æ…‹è¡Œåˆ—
-        self.D = np.array(D) #é§†å‹•è¡Œåˆ—
-        self.C = np.array(C) #è¦³æ¸¬è¡Œåˆ—
-        # ã‚·ã‚¹ãƒ†ãƒ ã®ã‚µã‚¤ã‚º
-        xdim = A.shape[1] #çŠ¶æ…‹ã®æ¬¡å…ƒï¼Aã®åˆ—æ•°
-        ydim = C.shape[0] #è¦³æ¸¬ã®æ¬¡å…ƒï¼Cã®è¡Œæ•°
-        wdim = D.shape[1] #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®æ¬¡å…ƒï¼Dã®åˆ—æ•°
+        ### ƒVƒXƒeƒ€s—ñ
+        self.A = np.array(A) #ó‘Ôs—ñ
+        self.D = np.array(D) #‹ì“®s—ñ
+        self.C = np.array(C) #ŠÏ‘ªs—ñ
+        # ƒVƒXƒeƒ€‚ÌƒTƒCƒY
+        xdim = A.shape[1] #ó‘Ô‚ÌŸŒ³A‚Ì—ñ”
+        ydim = C.shape[0] #ŠÏ‘ª‚ÌŸŒ³C‚Ìs”
+        wdim = D.shape[1] #ƒVƒXƒeƒ€G‰¹‚ÌŸŒ³D‚Ì—ñ”
 
         super().__init__(xdim, ydim, Q, R)
 
-        ### åˆ¶å¾¡å…¥åŠ›
+        ### §Œä“ü—Í
         if B is not None:
             self.B = np.array(B)
-            self.udim = self.B.shape[1] #åˆ¶å¾¡å…¥åŠ›ã®æ¬¡å…ƒ
+            self.udim = self.B.shape[1] #§Œä“ü—Í‚ÌŸŒ³
             self.u = np.zeros(self.udim)
         else:
             self.udim = 0
                      
-        ### åˆæœŸè¨­å®š
+        ### ‰Šúİ’è
         self.setup(x0, dt, t0)
 
-    ### ç¢ºç‡å¾®åˆ†æ–¹ç¨‹å¼(SDE: stochastic differential equation)
+    ### Šm—¦”÷•ª•û’ö®(SDE: stochastic differential equation)
     def StateEqn(s, t, x):
-        Dww = np.ravel(s.D.dot(s.w)) #odeã®ãƒ™ã‚¯ãƒˆãƒ«ã¯1æ¬¡å…ƒé…åˆ—
+        Dww = np.ravel(s.D.dot(s.w)) #ode‚ÌƒxƒNƒgƒ‹‚Í1ŸŒ³”z—ñ
 
         dx0 = s.A.dot(x) + Dww
         
         if s.udim==0:
             dx = dx0
         else:
-            Bu = np.ravel(s.B.dot(s.u)) #odeã®ãƒ™ã‚¯ãƒˆãƒ«ã¯1æ¬¡å…ƒé…åˆ—
+            Bu = np.ravel(s.B.dot(s.u)) #ode‚ÌƒxƒNƒgƒ‹‚Í1ŸŒ³”z—ñ
             dx = dx0 + Bu
 
         return dx

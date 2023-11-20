@@ -1,38 +1,38 @@
 import numpy as np
 from scipy.integrate import ode
 
-class class_EKBF: #æ‹¡å¼µKalman-Bucyãƒ•ã‚£ãƒ«ã‚¿(Extended Kalman-Bucy filter)
+class class_EKBF: #Šg’£Kalman-BucyƒtƒBƒ‹ƒ^(Extended Kalman-Bucy filter)
 
     def __init__(s, xdim, ydim, D, Q, R, x0, cov0=None, t0=0.0):
         
-        s.xdim = xdim #çŠ¶æ…‹ãƒ™ã‚¯ãƒˆãƒ«ã®æ¬¡å…ƒ
-        s.ydim = ydim #å‡ºåŠ›ãƒ™ã‚¯ãƒˆãƒ«ã®æ¬¡å…ƒ
+        s.xdim = xdim #ó‘ÔƒxƒNƒgƒ‹‚ÌŸŒ³
+        s.ydim = ydim #o—ÍƒxƒNƒgƒ‹‚ÌŸŒ³
 
-        ### ã‚·ã‚¹ãƒ†ãƒ è¡Œåˆ—
-        ### çŠ¶æ…‹è¡Œåˆ— s.A ã¯æ¨å®šæ™‚ã«ä»£å…¥ã•ã‚Œã‚‹
-        ### è¦³æ¸¬è¡Œåˆ— s.C ã¯æ¨å®šæ™‚ã«ä»£å…¥ã•ã‚Œã‚‹
-        s.D = np.array(D) #é§†å‹•è¡Œåˆ—
-        # é›‘éŸ³
-        s.Q = np.array(Q) #ã‚·ã‚¹ãƒ†ãƒ é›‘éŸ³ã®å…±åˆ†æ•£
-        s.R = np.array(R) #è¦³æ¸¬é›‘éŸ³ã®å…±åˆ†æ•£
+        ### ƒVƒXƒeƒ€s—ñ
+        ### ó‘Ôs—ñ s.A ‚Í„’è‚É‘ã“ü‚³‚ê‚é
+        ### ŠÏ‘ªs—ñ s.C ‚Í„’è‚É‘ã“ü‚³‚ê‚é
+        s.D = np.array(D) #‹ì“®s—ñ
+        # G‰¹
+        s.Q = np.array(Q) #ƒVƒXƒeƒ€G‰¹‚Ì‹¤•ªU
+        s.R = np.array(R) #ŠÏ‘ªG‰¹‚Ì‹¤•ªU
         
-        ### å…±åˆ†æ•£è¡Œåˆ—ã®ãƒ™ã‚¯ãƒˆãƒ«åŒ–ã®æ¬¡å…ƒ
-        s.covdim = s.xdim**2 #æœ¬æ¥ã¯ä¸‰è§’æˆåˆ†ã ã‘ã§ã‚ˆã„ãŒæ‰‹æŠœã
+        ### ‹¤•ªUs—ñ‚ÌƒxƒNƒgƒ‹‰»‚ÌŸŒ³
+        s.covdim = s.xdim**2 #–{—ˆ‚ÍOŠp¬•ª‚¾‚¯‚Å‚æ‚¢‚ªè”²‚«
 
-        ### ãƒ•ã‚£ãƒ«ã‚¿ã®åˆæœŸå€¤
-        s.t    = t0           #åˆæœŸæ™‚åˆ»
-        s.xf   = np.array(x0) #æ¿¾æ³¢æ¨å®šå€¤
-        s.K    = None         #ã‚«ãƒ«ãƒãƒ³ã‚²ã‚¤ãƒ³
-        #å…±åˆ†æ•£è¡Œåˆ—ã¨ãã®åˆæœŸå€¤
+        ### ƒtƒBƒ‹ƒ^‚Ì‰Šú’l
+        s.t    = t0           #‰Šú
+        s.xf   = np.array(x0) #àh”g„’è’l
+        s.K    = None         #ƒJƒ‹ƒ}ƒ“ƒQƒCƒ“
+        #‹¤•ªUs—ñ‚Æ‚»‚Ì‰Šú’l
         if cov0 is not None:
             s.cov = np.array(cov0)
         else:
             s.cov = np.zeros((s.xdim,s.xdim))
 
-        #æœŸå¾…å€¤ã¨å…±åˆ†æ•£è¡Œåˆ—ã‚’1åˆ—ã«ä¸¦ã¹ãŸçŠ¶æ…‹ãƒ™ã‚¯ãƒˆãƒ«
+        #Šú‘Ò’l‚Æ‹¤•ªUs—ñ‚ğ1—ñ‚É•À‚×‚½ó‘ÔƒxƒNƒgƒ‹
         X0 = s.xcov2vec(s.xf, s.cov)
 
-        ### å¸¸å¾®åˆ†æ–¹ç¨‹å¼ã®ã‚½ãƒ«ãƒãƒ¼
+        ### í”÷•ª•û’ö®‚Ìƒ\ƒ‹ƒo[
         s.solver = ode(s.ode_func).set_integrator('dopri5')
         s.solver.set_initial_value( X0, t0 )
 
@@ -47,29 +47,29 @@ class class_EKBF: #æ‹¡å¼µKalman-Bucyãƒ•ã‚£ãƒ«ã‚¿(Extended Kalman-Bucy filter)
         vec[self.xdim:] = np.ravel(cov)
         return vec
     
-    ### KBFã‚’æ›´æ–°ã™ã‚‹å¸¸å¾®åˆ†æ–¹ç¨‹å¼
+    ### KBF‚ğXV‚·‚éí”÷•ª•û’ö®
     def ode_func(s, t, X, y):
 
-        x,cov = s.vec2xcov(X) #æœŸå¾…å€¤ã¨å…±åˆ†æ•£è¡Œåˆ—ã®åˆ‡ã‚Šåˆ†ã‘
+        x,cov = s.vec2xcov(X) #Šú‘Ò’l‚Æ‹¤•ªUs—ñ‚ÌØ‚è•ª‚¯
 
-        C = s.C_jac(x,t)                               #æ‹¡å¼µC_jac
+        C = s.C_jac(x,t)                               #Šg’£C_jac
         s.C = C
         
-        # ã‚«ãƒ«ãƒãƒ³ã‚²ã‚¤ãƒ³
+        # ƒJƒ‹ƒ}ƒ“ƒQƒCƒ“
         K = cov.dot(C.T).dot(np.linalg.pinv(s.R))
         s.K = K
         
-        # æœŸå¾…å€¤ã®å¸¸å¾®åˆ†æ–¹ç¨‹å¼
-        dx = s.A_func(x, t) + s.K.dot(y - s.C_func(x, t)) #æ‹¡å¼µA_func, C_func
+        # Šú‘Ò’l‚Ìí”÷•ª•û’ö®
+        dx = s.A_func(x, t) + s.K.dot(y - s.C_func(x, t)) #Šg’£A_func, C_func
 
-        # å…±åˆ†æ•£ã®å¸¸å¾®åˆ†æ–¹ç¨‹å¼
-        A = s.A_jac(x,t)                               #æ‹¡å¼µA_jac
+        # ‹¤•ªU‚Ìí”÷•ª•û’ö®
+        A = s.A_jac(x,t)                               #Šg’£A_jac
         s.A = A
 
         dcov = A.dot(cov) + cov.dot(A.T) \
               + s.D.dot(s.Q).dot(s.D.T) - s.K.dot(C).dot(cov)
         
-        dX = s.xcov2vec(dx,dcov) #ãƒ™ã‚¯ãƒˆãƒ«åŒ–
+        dX = s.xcov2vec(dx,dcov) #ƒxƒNƒgƒ‹‰»
         
         return dX
 
@@ -85,7 +85,7 @@ class class_EKBF: #æ‹¡å¼µKalman-Bucyãƒ•ã‚£ãƒ«ã‚¿(Extended Kalman-Bucy filter)
         s.xf, s.cov = s.vec2xcov(s.solver.y) 
         s.t = s.solver.t
 
-    def stability(s): #å‚è€ƒç¨‹åº¦ã ãŒä¸€å¿œæ®‹ã—ã¦ãŠã
+    def stability(s): #Ql’ö“x‚¾‚ªˆê‰c‚µ‚Ä‚¨‚­
         stability_matrix = s.A - np.dot(s.K, s.C)
         val,vec = np.linalg.eig( stability_matrix )
         realval = np.real(val)
